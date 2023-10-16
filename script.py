@@ -22,7 +22,12 @@ def is_image(file_path):
 def is_svg(file_path):
     return file_path.lower().endswith('.svg')
 
-def display_file_content(file_path):
+def display_file_content(file_path, extensions_to_skip=[]):
+    file_extension = file_path.split('.')[-1]
+    if file_extension in extensions_to_skip:
+        print(f'Skipping {file_extension} file: {file_path}')
+        return
+
     if is_image(file_path) or is_svg(file_path):
         print(f'Skipping image/SVG file: {file_path}')
     else:
@@ -37,21 +42,21 @@ def display_file_content(file_path):
                 print(f'\nContents of {file_path} (encoded in latin-1):\n')
                 print(content)
 
-if len(sys.argv) != 2:
-    print("Usage: python list_files.py /path/to/directory")
+if len(sys.argv) < 2:
+    print("Usage: python list_files.py /path/to/directory [skip_ext1 skip_ext2 ...]")
     sys.exit(1)
 
 directory_to_explore = sys.argv[1]
+extensions_to_skip = sys.argv[2:]
 
 if not os.path.isdir(directory_to_explore):
     print(f"Error: '{directory_to_explore}' is not a valid directory.")
     sys.exit(1)
 
-# Liste des dossiers à exclure (tous les dossiers qui commencent par ".old" et ".git")
 directories_to_exclude = [d for d in os.listdir(directory_to_explore) if d.startswith(".old")]
 directories_to_exclude.append(".git")
 
 files_list = list_files(directory_to_explore, directories_to_exclude)
 
 for file_path in files_list:
-    display_file_content(file_path)
+    display_file_content(file_path, extensions_to_skip)
